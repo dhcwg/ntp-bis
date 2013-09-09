@@ -34,6 +34,20 @@
       </address>
     </author>
 
+    <author fullname="Bernie Volz" initials="B" surname="Volz">
+      <organization abbrev="">Cisco Systems, Inc.</organization>
+      <address>
+        <postal>
+          <street>1414 Massachusetts Ave</street>
+          <city>Boxborough, MA  01719</city>
+          <region></region>
+          <code></code>
+          <country>USA</country>
+        </postal>
+        <email>volz@cisco.com</email>
+      </address>
+    </author>
+
   <date/>
 
   <abstract>
@@ -94,7 +108,7 @@
 
 <section title="NTP Server Option for DHCPv6">
 
-  <t> The option carries the NTP Server or SNTP Server FQDN.</t>
+  <t> The option carries the NTP Server or SNTP Server addresses.</t>
 
 <!-- tomek: hmmm, this is interesting. The usage of unicast address (client
 sends NTP request to it) and mutlicast address (client joins that multicast
@@ -168,30 +182,33 @@ The format of the NTP Server Address Suboption is:
 
 </section> -->
 
-
-<t>This option specifies the FQDN of an NTP Server or SNTP Server
-available to the client. </t>
+<t>This option carries one or more IPv6 addresses of an NTP Server or
+SNTP Server available to the client.</t>
 
 <figure><artwork align="left"><![CDATA[
-The format of the NTP Server FQDN Suboption is:
+The format of the NTP Server Address option is:
 
    0                   1                   2                   3
    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-  |    NTP_SERVER_FQDN            |         suboption-len         |
+  |    OPTION_NTP                 |         suboption-len         |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
   |                                                               |
-  |                      FQDN of NTP Server                       |
-  :                                                               :
+  |                   NTP server (IPv6 address)                   |
+  |                                                               |
+  |                                                               |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |                                                               |
+  |                   NTP server (IPv6 address)                   |
+  |                                                               |
+  |                                                               |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |                              ...                              |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-    suboption-code: NTP_SUBOPTION_FQDN (TBD),
+    option-code: OPTION_NTP (TBD)
 
-    suboption-len: Length of the included FQDN field,
-
-    FQDN: Fully Qualified Domain Name of the NTP Server or SNTP Server.
-          This field MUST be encoded as described in [RFC3315],
-          section 8.
+    option-len: 16 * number of addresses
 ]]></artwork></figure>
 
 <!-- tomek: removed from the FQDN description above: Internationalized
@@ -242,6 +259,14 @@ The format of the NTP Server FQDN Suboption is:
     <t>It violates many DHCPv6 rules and it never completed DHC
     review. Currently the rules for defining options are specified in
     <xref target="I-D.ietf-dhc-option-guidelines"/>.</t>
+    <t>Section 7 mentioned that "the approach of only offering IPv6
+    addresses to specify server location does not meet NTP
+    requirements that make use of an FQDN (Fully-Qualified Domain
+    Name) as well.". However, there is no specific text in RFC5905
+    about FQDN or domain names.</t>
+    <t>The sub-option codes are inserted into wrong IANA registry (they
+    are kept in http://www.iana.org/assignments/bootp-dhcp-parameters/bootp-dhcp-parameters.xhtml, while they belong to http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xhtml).</t>
+
     <t>Nits: There are no server behavior or client behavior sections,
     so it is unclear what each entity is supposed to do.</t>
   </list>

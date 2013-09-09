@@ -1,0 +1,448 @@
+
+
+
+
+Network Working Group                                       T. Mrugalski
+Internet-Draft                                                       ISC
+Obsoletes: 5908 (if approved)                                    B. Volz
+Intended status: Standards Track                     Cisco Systems, Inc.
+Expires: March 13, 2014                               September 09, 2013
+
+
+          Network Time Protocol (NTP) Server Option for DHCPv6
+                    draft-mrugalski-dhc-5908bis.txt
+
+Abstract
+
+   The NTP Server Option for Dynamic Host Configuration Protocol for
+   IPv6 (DHCPv6) provides NTP (Network Time Protocol version 4) Server
+   location information to DHCPv6 hosts.  This document obsoletes
+   [RFC5908].
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on March 13, 2014.
+
+Copyright Notice
+
+   Copyright (c) 2013 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+Mrugalski & Volz         Expires March 13, 2014                 [Page 1]
+
+Internet-Draft        NTP Server Option for DHCPv6        September 2013
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Requirements notation . . . . . . . . . . . . . . . . . . . .   2
+   3.  Related Work and Usage Model  . . . . . . . . . . . . . . . .   2
+   4.  NTP Server Option for DHCPv6  . . . . . . . . . . . . . . . .   3
+   5.  Issues with RFC5908 . . . . . . . . . . . . . . . . . . . . .   4
+   6.  DHCPv6 Server Behavior  . . . . . . . . . . . . . . . . . . .   5
+   7.  DHCPv6 Client Behavior  . . . . . . . . . . . . . . . . . . .   5
+   8.  Appearance of this Option . . . . . . . . . . . . . . . . . .   6
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   10. RFC 4075 Deprecation  . . . . . . . . . . . . . . . . . . . .   6
+   11. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   12. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
+   13. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+     13.1.  Normative References . . . . . . . . . . . . . . . . . .   7
+     13.2.  Informative References . . . . . . . . . . . . . . . . .   7
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   8
+
+1.  Introduction
+
+   This document defines a DHCPv6 option to provide Network Time
+   Protocol version 4 [RFC5908] or greater Server location information
+   to DHCPv6 hosts.
+
+2.  Requirements notation
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [RFC2119].
+
+3.  Related Work and Usage Model
+
+   The NTP service is publicly offered on the Internet by a number of
+   organizations.  Those Servers can be used but should not be abused,
+   so any method which is tasked to disseminate locations of NTP Servers
+   must act responsibly in a manner that does not lead to public Server
+   overloading.  When using DHCPv6 to offer NTP Server location, and if
+   there is a need to distribute a host with a hardcoded configuration,
+   this configuration MUST NOT include Server location that is not part
+   of the organization that distributes this device.  Typical usage of
+   this option is to specify an NTP Server that is part of the
+   organization that operates the DHCPv6 Server.
+
+   The location of the NTP service, like any other Internet service, can
+   be specified by an IP address or a Fully Qualified Domain Name
+   (FQDN).  By design, DHCP offers information to multiple devices and
+   is prone to amplification of mistakes, so great care must be taken to
+
+
+
+Mrugalski & Volz         Expires March 13, 2014                 [Page 2]
+
+Internet-Draft        NTP Server Option for DHCPv6        September 2013
+
+
+   define its configuration.  Specification of the NTP service by FQDN
+   offers a level of indirection that works as a possible mitigation
+   tool in case of misconfiguration.  DNS can be used to redirect
+   misconfigured clients to an IPv6 address that is not configured on
+   any host instead of having to change the address of the NTP Server
+   itself.
+
+   While the NTP specification defines a comprehensive set of
+   configuration parameters, modification of those parameters is best
+   left to the decision of the client itself.  The DHCPv6 option for NTP
+   is therefore restricted to Server location.
+
+4.  NTP Server Option for DHCPv6
+
+   The option carries the NTP Server or SNTP Server addresses.
+
+   If the NTP Server or SNTP Server location is an IPv6 multicast
+   address, the client SHOULD use this address as an NTP multicast group
+   address and listen to messages sent to this group in order to
+   synchronize its clock.
+
+   This document does not define any priority relationship between the
+   client's embedded configuration (if any) and the NTP or SNTP Servers
+   discovered via this option.  In particular, the client is allowed to
+   simultaneously use its own configured NTP Servers or SNTP Servers and
+   the Servers discovered via DHCP.
+
+   This option carries one or more IPv6 addresses of an NTP Server or
+   SNTP Server available to the client.
+
+   The format of the NTP Server Address option is:
+
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |    OPTION_NTP                 |         suboption-len         |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                                                               |
+     |                   NTP server (IPv6 address)                   |
+     |                                                               |
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                                                               |
+     |                   NTP server (IPv6 address)                   |
+     |                                                               |
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                              ...                              |
+
+
+
+Mrugalski & Volz         Expires March 13, 2014                 [Page 3]
+
+Internet-Draft        NTP Server Option for DHCPv6        September 2013
+
+
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+       option-code: OPTION_NTP (TBD)
+
+       option-len: 16 * number of addresses
+
+
+5.  Issues with RFC5908
+
+   This document obsoletes [RFC5908] and defines replacement option.
+   The following list enumerates problems with RFC5908 approach:
+
+   o  It is redundant to have 3 ways to specify the same thing.
+
+   o  It defined 3 separate sub-options: one for unicast or anycast
+      address, second for multicast address and third one for FQDN
+      option.  Even though it forbade to mix them within one NTP server
+      option, it allowed to send multiple instances of that option,
+      effectively allowing mix and match of those types.
+
+   o  Specifying separate option for multicast address when there is a
+      unicast address option does not make sense.  It would be better to
+      specify one option to send an address and allow both unicast and
+      multicast in it.  It is trivial check if the received address is
+      multicast (first octet is ff) or unicast (first octet is not ff).
+
+   o  FQDN and address options have different usage models.  An address
+      is consumed as is and its value does not change over time, unless
+      updated information is received during renewal or rebind events.
+      On the other hand, FQDN usage depends on when it is resolved.  If
+      it is resolved immediately upon reception by the client, then it
+      is almost equal to address (FQDN can resolve to both IPv4 and IPv6
+      addresses, and can resolve to more than one address).  However,
+      typical FQDN usage model is that it is stored as FQDN and later
+      resolved when NTP configuration is needed.  This has the benefit
+      of operator being able to change name resolution to a different
+      NTP server without needing to update clients configuration.
+      Please note the different timescales of receiving an address and
+      receiving FQDN that is resolved many times.  Those two are
+      incompatible and can't be merged easily.
+
+   o  Client is allowed to send the NTP option (the option itself, not
+      its code in ORO) in SOLICIT, REQUEST, RENEW, REBIND and
+      INFORMATION-REQUEST.  The text does not explain why client may do
+      that or what the server is supposed to do with received values.
+      It is unclear if the client should send empty NTP option or with
+      sub-options, which sub-options and with what values.
+
+
+
+
+Mrugalski & Volz         Expires March 13, 2014                 [Page 4]
+
+Internet-Draft        NTP Server Option for DHCPv6        September 2013
+
+
+   o  It violates many DHCPv6 rules and it never completed DHC review.
+      Currently the rules for defining options are specified in
+      [I-D.ietf-dhc-option-guidelines].
+
+   o  Section 7 mentioned that "the approach of only offering IPv6
+      addresses to specify server location does not meet NTP
+      requirements that make use of an FQDN (Fully-Qualified Domain
+      Name) as well.".  However, there is no specific text in RFC5905
+      about FQDN or domain names.
+
+   o  The sub-option codes are inserted into wrong IANA registry (they
+      are kept in http://www.iana.org/assignments/bootp-dhcp-parameters/
+      bootp-dhcp-parameters.xhtml, while they belong to http://
+      www.iana.org/assignments/dhcpv6-parameters/
+      dhcpv6-parameters.xhtml).
+
+   o  Nits: There are no server behavior or client behavior sections, so
+      it is unclear what each entity is supposed to do.
+
+6.  DHCPv6 Server Behavior
+
+   Sections 17.2.2 and 18.2 of [RFC3315] govern server operation in
+   regards to option assignment.  As a convenience to the reader, we
+   mention here that the server will send option NTP Option only if
+   configured with specific values for NTP Option and the client
+   requested it.
+
+7.  DHCPv6 Client Behavior
+
+   Clients MAY request NTP Server Option, as defined in [RFC3315],
+   sections 17.1.1, 18.1.1, 18.1.3, 18.1.4, 18.1.5 and 22.7.  As a
+   convenience to the reader, we mention here that the client includes
+   requested option codes in Option Request Option.
+
+   Optional text (if the option contains FQDN): If the client requests
+   an option that conveys an FQDN, it is expected that the contents of
+   that option will be resolved using DNS.  Hence the following text may
+   be useful: Clients that request option foo SHOULD also request option
+   OPTION_DNS_SERVERS specified in [RFC3646].
+
+   Clients MUST discard option foo if it is invalid (i.e. did not pass
+   validation steps defined in Section X.Y).
+
+
+
+
+
+
+
+
+
+Mrugalski & Volz         Expires March 13, 2014                 [Page 5]
+
+Internet-Draft        NTP Server Option for DHCPv6        September 2013
+
+
+8.  Appearance of this Option
+
+   The OPTION_NTP_SERVER option can appear multiple times in a DHCPv6
+   message.  The order in which these options appear is not significant.
+   The client uses its usual algorithms to determine which Server(s) or
+   multicast group(s) should be prefered to synchronize its clock.
+
+   The OPTION_NTP_SERVER option MUST NOT appear in messages other than
+   the following: Solicit, Advertise, Request, Renew, Rebind,
+   Information-Request, and Reply.  If this option appears in messages
+   other than those specified above, the receiver MUST ignore it.
+
+   The option number for this option MAY appear in the "Option Request"
+   option [RFC3315] in the following messages: Solicit, Request, Renew,
+   Rebind, Information-Request, and Reconfigure.  If this option number
+   appears in the "Option Request" option in messages other than those
+   specified above, the receiver SHOULD ignore it.
+
+9.  Security Considerations
+
+   This option could be used by an intruder to advertise the address of
+   a malicious NTP Server or SNTP Server and adversely affect the clock
+   of clients on the network.  The consequences of such an attack can be
+   critical, because many security protocols depend on time
+   synchronization to run their algorithms.  As an example, an attacker
+   could break connectivity between SEND-enabled nodes [RFC3971], simply
+   by affecting the clock on these nodes.
+
+   To prevent these attacks, it is strongly advisable to secure the use
+   of this option either by:
+
+      using the NTPv4 Autokey public key authentication, as defined in
+      [RFC5906] or,
+
+      using authenticated DHCP as described in [RFC3315] section 21.
+
+10.  RFC 4075 Deprecation
+
+   [RFC4075] (SNTP Configuration Option for DHCPv6) provides some degree
+   of automatic time Server configuration for IPv6, as it specifies how
+   to transmit SNTP [RFC4330] Servers addresses through DHCPv6.  However
+   this approach is not suitable for all NTP deployments.  It is not an
+   extensible mechanism and introduces some semantic confusion throught
+   the use of the "SNTP" acronym.  Additionally the approach of only
+   offering IPv6 addresses to specify Server location does not meet NTP
+   requirements that make use of a FQDN (Fully Qualified Domain Name) as
+   well.  For all the abovementioned reasons, this document makes
+   [RFC4075] deprecated.
+
+
+
+Mrugalski & Volz         Expires March 13, 2014                 [Page 6]
+
+Internet-Draft        NTP Server Option for DHCPv6        September 2013
+
+
+11.  IANA Considerations
+
+   When this document is published, the IANA is requested to mark option
+   OPTION_NTP_SERVER (56) from "DHCP Option Codes" registry as obsolete.
+
+   TODO
+
+   IANA is required to maintain a new number space of NTP time source
+   suboptions, located in the BOOTP-DHCP Parameters Registry.  The
+   initial suboptions are described in section 4 of this document.  IANA
+   assigns future NTP time source suboptions with a "IETF Consensus"
+   policy as described in [RFC5226].  Future proposed suboptions are to
+   be referenced symbolically in the Internet-Drafts that describe them,
+   and shall be assigned numeric codes by IANA when approved for
+   publication as an RFC.
+
+12.  Acknowledgements
+
+   Author would like to thank Richard Gayraud and Benoit Lurdelet for
+   their work on RFC5908, as this document is roughly based on that
+   previous work.
+
+13.  References
+
+13.1.  Normative References
+
+   [RFC3315]  Droms, R., Bound, J., Volz, B., Lemon, T., Perkins, C.,
+              and M. Carney, "Dynamic Host Configuration Protocol for
+              IPv6 (DHCPv6)", RFC 3315, July 2003.
+
+   [RFC3646]  Droms, R., "DNS Configuration options for Dynamic Host
+              Configuration Protocol for IPv6 (DHCPv6)", RFC 3646,
+              December 2003.
+
+   [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
+              IANA Considerations Section in RFCs", BCP 26, RFC 5226,
+              May 2008.
+
+   [RFC5906]  Haberman, B. and D. Mills, "Network Time Protocol Version
+              4: Autokey Specification", RFC 5906, June 2010.
+
+   [RFC5908]  Gayraud, R. and B. Lourdelet, "Network Time Protocol (NTP)
+              Server Option for DHCPv6", RFC 5908, June 2010.
+
+13.2.  Informative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+
+
+Mrugalski & Volz         Expires March 13, 2014                 [Page 7]
+
+Internet-Draft        NTP Server Option for DHCPv6        September 2013
+
+
+   [RFC3971]  Arkko, J., Kempf, J., Zill, B., and P. Nikander, "SEcure
+              Neighbor Discovery (SEND)", RFC 3971, March 2005.
+
+   [RFC4075]  Kalusivalingam, V., "Simple Network Time Protocol (SNTP)
+              Configuration Option for DHCPv6", RFC 4075, May 2005.
+
+   [RFC4330]  Mills, D., "Simple Network Time Protocol (SNTP) Version 4
+              for IPv4, IPv6 and OSI", RFC 4330, January 2006.
+
+   [I-D.ietf-dhc-option-guidelines]
+              Hankins, D., Mrugalski, T., Siodelski, M., Jiang, S., and
+              S. Krishnan, "Guidelines for Creating New DHCPv6 Options",
+              draft-ietf-dhc-option-guidelines-13 (work in progress),
+              July 2013.
+
+Authors' Addresses
+
+   Tomek Mrugalski
+   Internet Systems Consortium, Inc.
+   950 Charter Street
+   Redwood City, CA  94063
+   USA
+
+   Phone: +1 650 423 1345
+   Email: tomasz.mrugalski@gmail.com
+
+
+   Bernie Volz
+   Cisco Systems, Inc.
+   1414 Massachusetts Ave
+   Boxborough, MA  01719
+   USA
+
+   Email: volz@cisco.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mrugalski & Volz         Expires March 13, 2014                 [Page 8]
